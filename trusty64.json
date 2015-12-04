@@ -1,0 +1,37 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "subnet_id": "",
+    "security_group_ids": "[]"
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "ap-northeast-1",
+    "source_ami": "ami-936d9d93",
+    "instance_type": "t2.micro",
+    "ssh_username": "ubuntu",
+    "ami_name": "trusty64-grafana_{{timestamp}}",
+    "subnet_id": "{{user `subnet_id`}}",
+    "ssh_private_ip": false,
+    "associate_public_ip_address": true,
+    "security_group_ids": {{user `security_group_ids`}}
+  }],
+  "provisioners": [
+  {
+    "type": "chef-solo",
+    "install_command": "curl -L https://www.opscode.com/chef/install.sh | sudo bash -s -- -v 12.5.1",
+    "cookbook_paths": ["cookbooks"],
+    "run_list": ["alumican-grafana"]
+  },
+  {
+    "type": "shell",
+    "scripts": [
+      "scripts/grafana-install.sh",
+      "scripts/nginx.sh"
+    ]
+  }
+  ]
+}
